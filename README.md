@@ -1,110 +1,75 @@
-# 🌍 Geo-AI Feature Extraction
+# 🌍 Geo-AI Feature Extraction: Deep Learning Pipelines
 
-A production-ready deep learning application for semantic segmentation of geospatial features from drone orthophotos and satellite imagery.
+This repository houses a collection of high-performance **Research & Development notebooks** designed to extract critical geospatial features from high-resolution drone orthophotos.
 
-![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
-![Streamlit](https://img.shields.io/badge/Streamlit-1.28%2B-FF4B4B)
-![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-EE4C2C)
-![License](https://img.shields.io/badge/License-MIT-green)
+Using state-of-the-art Computer Vision techniques, we process massive geospatial datasets (GeoTIFFs) to identify and segment infrastructure and natural features.
 
-## 📖 Overview
+## 🧠 Core Research Notebooks
 
-This project provides a robust, user-friendly interface for extracting geographic features such as buildings, roads, water bodies, and railways from large-scale orthophotos. Built with Streamlit and PyTorch, it utilizes state-of-the-art semantic segmentation models (U-Net with ResNet encoders) to deliver high-accuracy results while handling massive geospatial files efficiently.
+The primary value of this project lies in the specialized Jupyter notebooks, each tailored for a specific feature extraction challenge. These notebooks handle the full pipeline: **Data Ingestion** -> **Preprocessing (Tiling/Rasterization)** -> **Model Training** -> **Inference**.
 
-## ✨ Key Features
+| Notebook | Feature Type | Description |
+|----------|-------------|-------------|
+| 🏢 **`building.ipynb`** | **Building Footprints** | End-to-end pipeline for segmenting building rooftops. Features strict mask alignment and U-Net training with ResNet encoders. |
+| 🛣️ **`main.ipynb`** | **Road Network** | Rasterizes linear road vectors into masks and trains a model to detect road surfaces/centerlines, handling complex connectivity. |
+| 💧 **`waterbodies.ipynb`** | **Water Bodies** | Semantic segmentation for ponds, potential lakes, and water storage. Optimized to reduce false positives in dry terrain. |
+| 🚂 **`railways.ipynb`** | **Railway Tracks** | Specialized pipeline for linear feature extraction, preserving the connectivity of railway segments over long distances. |
+| ⚡ **`utilities.ipynb`** | **Utilities** | Detection of smaller utility infrastructure. Handles high-imbalance classes where features are small relative to the image size. |
 
-- **🏗 Multi-Class Extraction**: Support for multiple feature types including:
-  - Buildings
-  - Roads
-  - Water Bodies
-  - Railways
-  - Utilities
-- **🚀 Memory-Efficient Processing**: specific "Streaming Inference" pipeline designed to handle large GeoTIFFs (1GB+) without crashing memory, processing images in moving windows.
-- **🎨 Premium UI/UX**: A modern, dark-themed interface with custom styling, smooth transitions, and intuitive controls.
-- **⚙️ Advanced Configuration**:
-  - Adjustable tile sizes (256, 512, 1024)
-  - Configurable batch sizes and confidence thresholds
-  - Post-processing options (morphology, hole filling)
-- **🗺️ Geospatial Precision**: Preserves origin coordinate reference systems (CRS) and geotransforms in all output files.
-- **⚡ GPU Acceleration**: Automatic CUDA detection for accelerated inference on supported hardware.
+## 🛠️ Technical Methodology
 
-## 🛠️ Tech Stack
+Our pipelines address the unique challenges of geospatial deep learning:
 
-- **Frontend**: Streamlit
-- **Deep Learning**: PyTorch, Torchvision
-- **Geospatial Processing**: Rasterio, GeoPandas, Shapely
-- **Image Processing**: OpenCV (cv2), NumPy, Pillow
+### 1. Large-Scale Data Handling
+- **Tiling**: Images are too large for GPU memory (1GB+). We slice them into fixed-size chips (e.g., 512x512) with overlap to prevent edge artifacts.
+- **Geospatial Alignment**: All vector data (Shapefiles) are strictly reprojected to match the Orthophoto's Coordinate Reference System (CRS) before rasterization.
 
-## 📂 Directory Structure
-
-```
-natgeo/
-├── app/                 # Main application source code
-│   ├── app.py           # Entry point
-│   ├── config.py        # Configuration settings
-│   ├── utils/           # Utility functions (inference, processing)
-│   └── .streamlit/      # Streamlit configuration
-├── data/                # Data storage
-│   └── images/          # Input orthophotos
-├── models/              # Saved model weights (.pth files)
-├── notebooks/           # Jupyter notebooks for model training & experiments
-├── outputs/             # Inference results
-└── requirements.txt     # Python dependencies
-```
+### 2. Deep Learning Architecture
+- **Models**: We primarily use **U-Net** architectures with **ResNet-34** or **ResNet-50** encoders pretrained on ImageNet.
+- **Loss Functions**: Custom implementations of **Dice Loss + Binary Cross Entropy (BCE)** to handle class imbalance (e.g., roads are only ~5% of the pixels).
+- **Inference**: GPU-accelerated variable-window inference.
 
 ## 🚀 Getting Started
 
+The notebooks are the best way to understand and run the code.
+
 ### Prerequisites
+- Python 3.9+
+- NVIDIA GPU (Recommended for training)
+- 16GB+ RAM (For handling large GeoTIFFs)
 
-- Python 3.9 or higher
-- CUDA-capable GPU (recommended for faster processing)
+### Setup
 
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/geo-ai-extraction.git
-   cd geo-ai-extraction
-   ```
-
-2. **Create a virtual environment**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**
+1. **Install Dependencies**
    ```bash
    pip install -r app/requirements.txt
    ```
 
-### Running the Application
-
-1. **Start the Streamlit server**
+2. **Launch Jupyter**
    ```bash
-   streamlit run app/app.py
+   jupyter lab
    ```
 
-2. **Access the UI**
-   Open your browser and navigate to `http://localhost:8501`.
+3. **Data Structure**
+   Ensure your data is organized as follows for the notebooks to work out-of-the-box:
+   ```
+   natgeo/
+   ├── data/
+   │   ├── images/          # Place huge .tif orthophotos here
+   │   └── shp/             # Corresponding .shp shapefiles
+   ```
 
-3. **Usage**
-   - **Load Data**: Browse for a `.tif` file in your `data/` directory or enter a direct file path.
-   - **Select Feature**: Choose the target feature (e.g., Water Body, Building) from the sidebar.
-   - **Configure**: Adjust inference settings if needed (Tile Size, Confidence).
-   - **Run**: Click "Run Model" to start the extraction process.
-   - **Export**: Download the binary masks, overlays, or colored visualization maps.
+## 📱 Streamlit Visualization (Demo)
 
-## 📊 Model Details
+*Note: The Streamlit app acts as a visualization layer and quick demo.*
 
-The application uses U-Net architectures with pre-trained encoders (e.g., ResNet-34) trained on specific datasets for each feature type.
-- **Input**: 3-channel RGB Orthophotos
-- **Output**: Binary segmentation masks
+While the notebooks contain the rigorous training cycles and full pipelines, an interactive web app is included for strictly **inference and visualization** purposes.
+
+To run the visualization demo:
+```bash
+streamlit run app/app.py
+```
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+This is an active research project. If you improve a pipeline (e.g., better loss function for thin features like railways), please submit a Pull Request.
