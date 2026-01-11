@@ -1,0 +1,24 @@
+# Geo-AI Feature Extraction App Requirements
+# ===========================================
+
+# Core ML/DL
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Web Framework
+streamlit>=1.28.0
+
+# Geospatial
+rasterio>=1.3.0
+geopandas>=0.14.0
+shapely>=2.0.0
+
+# Image Processing
+opencv-python>=4.8.0
+Pillow>=10.0.0
+
+# Data Processing
+numpy>=1.24.0
+
+# Progress bars (optional, for development)
+tqdm>=4.65.0

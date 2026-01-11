@@ -1,0 +1,11 @@
+venv/
+data/
+outputs/
+PB_training_dataSet_shp_file/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+.ipynb_checkpoints/
+*.tiff
+*.tif
