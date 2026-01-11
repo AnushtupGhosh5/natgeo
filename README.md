@@ -6,7 +6,7 @@ Using state-of-the-art Computer Vision techniques, we process massive geospatial
 
 ## 🧠 Core Research Notebooks
 
-The primary value of this project lies in the specialized Jupyter notebooks, each tailored for a specific feature extraction challenge. These notebooks handle the full pipeline: **Data Ingestion** -> **Preprocessing (Tiling/Rasterization)** -> **Model Training** -> **Inference**.
+The primary value of this project lies in the specialized Jupyter notebooks, each tailored for a specific feature extraction challenge. 
 
 | Notebook | Feature Type | Description |
 |----------|-------------|-------------|
@@ -16,9 +16,51 @@ The primary value of this project lies in the specialized Jupyter notebooks, eac
 | 🚂 **`railways.ipynb`** | **Railway Tracks** | Specialized pipeline for linear feature extraction, preserving the connectivity of railway segments over long distances. |
 | ⚡ **`utilities.ipynb`** | **Utilities** | Detection of smaller utility infrastructure. Handles high-imbalance classes where features are small relative to the image size. |
 
-## 🛠️ Technical Methodology
+## 🔬 Scientific Methodology
 
-Our pipelines address the unique challenges of geospatial deep learning:
+Our approach follows a rigorous deep learning pipeline adapted for geospatial data.
+
+### Training Pipeline
+
+The training process involves strict alignment of vector ground truth with raster imagery.
+
+```mermaid
+graph TD
+    A[📡 Raw Orthophoto .tif] --> C(🧱 Tiling 512x512)
+    B[🗺️ Vector Shapefiles .shp] --> D(🎭 Rasterization)
+    B --> B1(📍 CRS Reprojection)
+    B1 --> D
+    C --> E{🔄 Data Alignment}
+    D --> E
+    E --> F[🖼️ Training Batches]
+    F --> G[🧠 U-Net Training]
+    G --> H[💾 Saved Model Weights .pth]
+    
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style G fill:#bfb,stroke:#333,stroke-width:2px
+```
+
+### Inference Workflow
+
+For inference on large unseen images, we use a sliding window approach with memory-efficient processing.
+
+```mermaid
+graph LR
+    Input[New Orthophoto] --> Tile(Tiling & Windowing)
+    Tile --> Infer[🚀 GPU Inference]
+    Infer --> Prob[Probability Heatmap]
+    Prob --> Stitch(🧩 Stitching & Smoothing)
+    Stitch --> Thresh{Thresholding}
+    Thresh --> Mask[Final Binary Mask]
+    Mask --> Vector[📐 Feature Vectors]
+    
+    style Input fill:#f9f,stroke:#333,stroke-width:2px
+    style Infer fill:#f96,stroke:#333,stroke-width:2px
+    style Mask fill:#bfb,stroke:#333,stroke-width:2px
+```
+
+## 🛠️ Technical Details
 
 ### 1. Large-Scale Data Handling
 - **Tiling**: Images are too large for GPU memory (1GB+). We slice them into fixed-size chips (e.g., 512x512) with overlap to prevent edge artifacts.
@@ -27,16 +69,13 @@ Our pipelines address the unique challenges of geospatial deep learning:
 ### 2. Deep Learning Architecture
 - **Models**: We primarily use **U-Net** architectures with **ResNet-34** or **ResNet-50** encoders pretrained on ImageNet.
 - **Loss Functions**: Custom implementations of **Dice Loss + Binary Cross Entropy (BCE)** to handle class imbalance (e.g., roads are only ~5% of the pixels).
-- **Inference**: GPU-accelerated variable-window inference.
 
 ## 🚀 Getting Started
 
-The notebooks are the best way to understand and run the code.
-
 ### Prerequisites
 - Python 3.9+
-- NVIDIA GPU (Recommended for training)
-- 16GB+ RAM (For handling large GeoTIFFs)
+- NVIDIA GPU (Recommended)
+- 16GB+ RAM
 
 ### Setup
 
@@ -51,7 +90,6 @@ The notebooks are the best way to understand and run the code.
    ```
 
 3. **Data Structure**
-   Ensure your data is organized as follows for the notebooks to work out-of-the-box:
    ```
    natgeo/
    ├── data/
@@ -60,16 +98,10 @@ The notebooks are the best way to understand and run the code.
    ```
 
 ## 📱 Streamlit Visualization (Demo)
-
-*Note: The Streamlit app acts as a visualization layer and quick demo.*
-
-While the notebooks contain the rigorous training cycles and full pipelines, an interactive web app is included for strictly **inference and visualization** purposes.
-
 To run the visualization demo:
 ```bash
 streamlit run app/app.py
 ```
 
 ## 🤝 Contributing
-
 This is an active research project. If you improve a pipeline (e.g., better loss function for thin features like railways), please submit a Pull Request.
